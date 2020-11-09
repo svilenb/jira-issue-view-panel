@@ -1,0 +1,27 @@
+{
+    "key": "jira-issue-view-panel",
+    "name": "Jira Issue View Panel",
+    "description": "Jira issue view panel with linked bugs",
+    "baseUrl": "{{localBaseUrl}}",
+    "authentication": {
+        "type": "jwt"
+    },
+    "lifecycle": {
+        "installed": "/installed"
+    },
+    "scopes": [
+        "READ"
+    ],
+    "modules": {
+        "webPanels": [
+            {
+                "key": "linked-bugs",
+                "location": "atl.jira.view.issue.right.context",
+                "name": {
+                    "value": "Linked bugs"
+                },
+                "url": "linked-bugs?issueKey={issue.key}"
+            }
+        ]
+    }
+}
