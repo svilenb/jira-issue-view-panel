@@ -1,6 +1,7 @@
-import React from 'react';
+import Button from '@atlaskit/button';
 import DynamicTable from '@atlaskit/dynamic-table';
 import moment from "moment";
+import React from 'react';
 
 function createKey(input) {
   return input ? input.replace(/^(the|a|an)/, '').replace(/\s/g, '') : input;
@@ -32,10 +33,12 @@ export default function LinkedBugs(props) {
       })).then(values => {
         const newRows = values.map((value, index) => {
           const bugEntity = JSON.parse(value.body);
+
+          const rowKey = `row-${index}-${bugEntity.key}`;
           const assignee = bugEntity.fields.assignee ? bugEntity.fields.assignee.displayName : "Unassigned";
 
           return {
-            key: `row-${index}-${bugEntity.key}`,
+            key: rowKey,
             cells: [
               {
                 key: createKey(bugEntity.fields.summary),
@@ -52,6 +55,22 @@ export default function LinkedBugs(props) {
               {
                 key: createKey(bugEntity.fields.created),
                 content: moment(bugEntity.fields.created).format("DD/MM/YYYY")
+              },
+              {
+                content: (
+                  <Button
+                    appearance="danger"
+                    onClick={() => {
+                      AP.request({
+                        url: `/rest/api/3/issue/${bugEntity.key}`,
+                        type: "DELETE"
+                      }).then(() => {
+                        setRows(prevRows => prevRows.filter(row => row.key !== rowKey))
+                      });
+                    }}>
+                    Delete
+                  </Button>
+                )
               }
             ]
           };
@@ -75,7 +94,8 @@ export default function LinkedBugs(props) {
             key: "summary",
             content: "Summary",
             isSortable: true,
-            width: 15
+            width: 15,
+            shouldTruncate: true,
           },
           {
             key: "create-date",
@@ -88,12 +108,17 @@ export default function LinkedBugs(props) {
             content: "Assignee",
             isSortable: true,
             width: 25,
+            shouldTruncate: true,
           },
           {
             key: "status",
             content: "Status",
             isSortable: true,
             width: 15,
+          },
+          {
+            key: 'delete',
+            shouldTruncate: true,
           }
         ]
       }}
